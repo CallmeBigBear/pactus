@@ -1,0 +1,23 @@
+#!/bin/bash
+#Check OS
+getOsArch() {
+	a=`arch`
+	str="aarch"
+	result=$(echo $a | grep "${str}")
+	if [[ "$result" != "" ]]
+	then
+		echo "this is arm cpu arch:" $a
+    		return 2;
+	else
+		echo "this is not arm cpu arch:" $a
+    		return 1;
+	fi
+}
+getOsArch
+if [ $? -eq 2 ];then
+    typeos="arm"
+else
+	typeos="amd"
+fi
+echo $typeos
+
