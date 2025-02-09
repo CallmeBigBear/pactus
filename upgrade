@@ -19,5 +19,25 @@ if [ $? -eq 2 ];then
 else
 	typeos="amd"
 fi
+echo "############################################"
 echo $typeos
+echo "############################################"
+sleep 5
+
+#get version
+ver=$(curl -s https://api.github.com/repos/pactus-project/pactus/releases/latest | grep -Po '"tag_name": "\K.*?(?=")' | cut -c 2-)
+echo "############################################"
+echo "Pactus version: v$ver"
+echo "############################################"
+read -n1 -r -p "Press any key to install Wget and continue..."
+filename="pactus-cli_${ver}_linux_${typeos}64.tar.gz" && \
+wget https://github.com/pactus-project/pactus/releases/download/v${ver}/$filename && \
+tar -xzf $filename && rm -rf $filename node_pactus && mv pactus-cli_${ver} node_pactus && \
+echo "############################################"
+./node_pactus/pactus-daemon version
+echo "############################################"
+echo "AUTO UPGRADE PACTUS BY CALLMEBIGBEAR"
+echo "############################################"
+read -n1 -r -p "Press any key to continue..."
+systemctl restart pactusd && journalctl -u pactusd -f -o cat
 
