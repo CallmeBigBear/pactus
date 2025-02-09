@@ -22,13 +22,20 @@ fi
 
 #get version
 ver=$(curl -s https://api.github.com/repos/pactus-project/pactus/releases/latest | grep -Po '"tag_name": "\K.*?(?=")' | cut -c 2-)
+echo ""
 echo "############################################"
-printf "\033[91mYour OS: $typeos\nCurrent Pactus version: v$ver\n\033[0m"
+echo "CURRENT VERSION:"
+$HOME/node_pactus/pactus-daemon version
+echo ""
+echo "############################################"
+echo "UPDATE INFO:"
+printf "\033[91mNew version   : $ver\nYour OS       : $typeos\n\033[0m"
 read -n1 -r -p "Enter to UPGRADE..."
 curl -L "https://github.com/pactus-project/pactus/releases/download/v${ver}/pactus-cli_${ver}_linux_${typeos}64.tar.gz" | tar -zxvf - -C $HOME/node_pactus --strip-components=1
+echo ""
 echo "############################################"
-$HOME/node_pactus/pactus-daemon version
 printf "\033[92mUPGRADE SUCCESSFULLY\n\033[0m"
+$HOME/node_pactus/pactus-daemon version
 read -n1 -r -p "Enter to start new version..."
 systemctl restart pactusd
 journalctl -u pactusd -fo cat
