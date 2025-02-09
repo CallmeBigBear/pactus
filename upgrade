@@ -6,10 +6,10 @@ getOsArch() {
 	result=$(echo $a | grep "${str}")
 	if [[ "$result" != "" ]]
 	then
-		echo "this is arm cpu arch:" $a
+		#echo "this is arm cpu arch:" $a
     		return 2;
 	else
-		echo "this is not arm cpu arch:" $a
+		#echo "this is not arm cpu arch:" $a
     		return 1;
 	fi
 }
@@ -19,21 +19,18 @@ if [ $? -eq 2 ];then
 else
 	typeos="amd"
 fi
-echo "############################################"
-echo $typeos
-echo "############################################"
-sleep 5
 
 #get version
 ver=$(curl -s https://api.github.com/repos/pactus-project/pactus/releases/latest | grep -Po '"tag_name": "\K.*?(?=")' | cut -c 2-)
 echo "############################################"
-echo "Pactus version: v$ver"
+echo "Your OS: $typeos"
+echo "Current Pactus version: v$ver"
 echo "############################################"
-read -n1 -r -p "Press any key to UPGRADE..."
+read -n1 -r -p "Enter to UPGRADE..."
 curl -L "https://github.com/pactus-project/pactus/releases/download/v${ver}/pactus-cli_${ver}_linux_${typeos}64.tar.gz" | tar -zxvf - -C $HOME/node_pactus --strip-components=1
 echo "############################################"
 echo "UPGRADE SUCCESSFULLY"
 ./node_pactus/pactus-daemon version
 echo "############################################"
-read -n1 -r -p "Press any key to start new version..."
+read -n1 -r -p "Enter to start new version..."
 systemctl restart pactusd && journalctl -u pactusd -f -o cat
