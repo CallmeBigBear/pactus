@@ -26,7 +26,6 @@ echo ""
 echo "############################################"
 echo "CURRENT VERSION:"
 $HOME/node_pactus/pactus-daemon version
-echo ""
 echo "############################################"
 echo "UPDATE INFO:"
 printf "\033[91mNew version   : $ver\nYour OS       : $typeos\n\033[0m"
