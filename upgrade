@@ -1,40 +1,42 @@
 #!/bin/bash
-#Check OS
-getOsArch() {
-        a=`arch`
-        str="aarch"
-        result=$(echo $a | grep "${str}")
-        if [[ "$result" != "" ]]
-        then
-                #echo "this is arm cpu arch:" $a
-                return 2;
-        else
-                #echo "this is not arm cpu arch:" $a
-                return 1;
-        fi
-}
-getOsArch
-if [ $? -eq 2 ];then
-    typeos="arm"
-else
-        typeos="amd"
+if [[ $1 == "" ]]; then
+    echo "ERROR: Enter new version | e.g: 1.7"
+    exit
 fi
-
-#get version
-ver=$(curl -s https://api.github.com/repos/pactus-project/pactus/releases/latest | grep -Po '"tag_name": "\K.*?(?=")' | cut -c 2-)
-echo ""
-echo "############################################"
-echo "CURRENT VERSION:"
+a=`arch`
+str="aarch"
+result=$(echo $a | grep "${str}")
+if [[ "$result" != "" ]]; then
+    TYPEOS="arm"
+else
+    TYPEOS="amd"
+fi
+GREEN="\e[1m\e[1;32m" # green color
+RED="\e[1m\e[1;31m" # red color
+BLUE='\033[0;34m'   # blue color
+YELLOW="\e[1m\e[1;33m"  # yellow color
+NC="\e[0m"          # no color
+BINARY_VERSION=$1
+BINARY_LINK="https://github.com/pactus-project/pactus/releases/download/v${BINARY_VERSION}/pactus-cli_${BINARY_VERSION}_linux_${TYPEOS}64.tar.gz"
+if curl -s --head $BINARY_LINK | head -n 1 | grep "302" > /dev/null; then
+  echo "Will update to version $BINARY_VERSION"
+else
+  echo -e "${RED}ERROR: Not found version $BINARY_VERSION ${NC}"
+  exit
+fi
+clear
+echo -e "${RED}\n############################################\nPACTUS UPGRADE BY NODDEX.COM\n############################################${NC}"
+echo -e "${YELLOW}"
 $HOME/node_pactus/pactus-daemon version
-echo "############################################"
-echo "UPDATE INFO:"
-printf "\033[91mNew version   : $ver\nYour OS       : $typeos\n\033[0m"
-read -n1 -r -p "Enter to UPGRADE..."
-curl -L "https://github.com/pactus-project/pactus/releases/download/v${ver}/pactus-cli_${ver}_linux_${typeos}64.tar.gz" | tar -zxvf - -C $HOME/node_pactus --strip-components=1
-echo ""
-echo "############################################"
-printf "\033[92mUPGRADE SUCCESSFULLY\n\033[0m"
+echo -e "New version   : $BINARY_VERSION\nYour OS       : $TYPEOS ${NC}"
+echo "Waiting 15s..."
+sleep 15
+curl -L "$BINARY_LINK" | tar -zxvf - -C $HOME/node_pactus --strip-components=1 > /dev/null
+echo -e "${GREEN}\n############################################\nUPGRADE SUCCESSFULLY"
 $HOME/node_pactus/pactus-daemon version
-read -n1 -r -p "Enter to start new version..."
+echo -e "############################################${NC}"
+echo "Waiting 10s to restart service..."
+sleep 10
 systemctl restart pactusd
-journalctl -u pactusd -fo cat
+echo "DONE!"
+echo -e "Check log:\njournalctl -u pactusd -fo cat"
